@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Students - Admin Panel{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .avatar-initials {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .table td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="fas fa-users me-2 text-primary"></i>Manage Students
+            </h2>
+            <p class="text-muted mb-0">Total registered students: {{ students.count }}</p>
+        </div>
+        <!-- ✅ تم تفعيل الرابط -->
+        <a href="{% url 'admin_add_student' %}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fas fa-user-plus me-2"></i>Add Student
+        </a>
+    </div>
+
+    <!-- Students Table -->
+    <div class="dashboard-card bg-white overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4">Student Name</th>
+                        <th>Email Address</th>
+                        <th>Joined Date</th>
+                        <th class="text-center">Enrolled Courses</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <!-- Initials Avatar -->
+                                <div class="avatar-initials me-3">
+                                    {{ student.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <!-- ✅ استخدام student.user المباشر -->
+                                    <h6 class="fw-bold mb-0 text-dark">{{ student.user.username }}</h6>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td class="text-muted">{{ student.user.email }}</td>
+                        
+                        <td class="text-muted">
+                            <i class="far fa-calendar-alt me-1"></i>
+                            {{ student.user.date_joined|date:"M d, Y" }}
+                        </td>
+                        
+                        <td class="text-center">
+                            {% if student.enrolled_courses.count > 0 %}
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-3">
+                                    {{ student.enrolled_courses.count }} Courses
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">
+                                    No Courses
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-2">
+                                <!-- ✅ 1. زر العرض (لإدارة الكورسات) -->
+                                <a href="{% url 'admin_student_detail' student.id %}" class="action-btn btn-light text-primary" data-bs-toggle="tooltip" title="View Details & Manage Courses">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <!-- ✅ 2. زر التعديل (لتغيير الاسم والإيميل) -->
+                                <a href="{% url 'admin_edit_student' student.id %}" class="action-btn btn-light text-warning" data-bs-toggle="tooltip" title="Edit Student">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                                <!-- ✅ 3. زر الحذف -->
+                                <a href="{% url 'admin_delete_student' student.id %}" class="action-btn btn-light text-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this student? This action cannot be undone.');" 
+                                   data-bs-toggle="tooltip" title="Delete Student">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-user-graduate fa-3x mb-3 opacity-25"></i>
+                                <p>No students found in the database.</p>
+                                <a href="{% url 'admin_add_student' %}" class="btn btn-sm btn-outline-primary">Add First Student</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

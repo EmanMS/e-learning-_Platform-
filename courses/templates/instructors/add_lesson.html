@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Add Lesson{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="fw-bold mb-0">Add Lesson to: <span class="text-primary">{{ course.title }}</span></h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="fw-bold mb-1">Lesson Title</label>
+                            <input type="text" name="title" class="form-control" required placeholder="e.g. Introduction to Variables">
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold mb-1">Video URL (Youtube/Vimeo)</label>
+                            <input type="url" name="video_url" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="fw-bold mb-1">Lesson Content / Notes</label>
+                            <textarea name="content" class="form-control" rows="5" placeholder="Summary of the lesson..."></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg flex-grow-1">Add Lesson</button>
+                            <a href="{% url 'instructor_dashboard' %}" class="btn btn-light btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

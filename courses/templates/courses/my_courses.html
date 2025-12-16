@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Courses - E-Learn{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="fw-bold mb-2">
+                <i class="fas fa-book-reader text-primary me-2"></i>My Learning
+            </h2>
+            <p class="text-muted lead">Track your progress and continue learning.</p>
+        </div>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="row g-4">
+        <!-- لاحظي: بنعمل loop على courses_data الجديدة مش courses -->
+        {% for item in courses_data %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-card">
+                <div class="card-body p-4">
+                    
+                    <!-- Header: Category & Status -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">
+                            {{ item.course.category }}
+                        </span>
+                        {% if item.progress == 100 %}
+                            <span class="badge bg-success rounded-pill px-3"><i class="fas fa-check me-1"></i> Completed</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark rounded-pill px-3"><i class="fas fa-spinner me-1"></i> In Progress</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Title & Instructor -->
+                    <h4 class="fw-bold mb-1">
+                        <a href="{% url 'course_detail' item.course.id %}" class="text-decoration-none text-dark stretched-link">
+                            {{ item.course.title }}
+                        </a>
+                    </h4>
+                    <p class="text-muted small mb-4">
+                        <i class="fas fa-chalkboard-teacher me-1"></i> {{ item.course.instructor.user.username }}
+                    </p>
+
+                    <!-- Stats Row (الشكل اللي عجبك) -->
+                    <div class="row text-center mb-4 g-2">
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="fw-bold text-dark">{{ item.total_lessons }}</div>
+                                <small class="text-muted" style="font-size: 0.75rem;">Lessons</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="fw-bold text-dark">{{ item.completed_lessons }}</div>
+                                <small class="text-muted" style="font-size: 0.75rem;">Completed</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <div class="fw-bold text-warning">4.9 <i class="fas fa-star small"></i></div>
+                                <small class="text-muted" style="font-size: 0.75rem;">Rating</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar (شغال حقيقي 100%) -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-bold text-muted">Progress</span>
+                            <span class="fw-bold text-primary">{{ item.progress }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar {% if item.progress == 100 %}bg-success{% else %}bg-primary{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ item.progress }}%"
+                                 aria-valuenow="{{ item.progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="d-grid position-relative" style="z-index: 2;">
+                        <a href="{% url 'course_detail' item.course.id %}" class="btn {% if item.progress == 100 %}btn-outline-success{% else %}btn-primary{% endif %} rounded-pill fw-bold">
+                            {% if item.progress == 100 %}
+                                <i class="fas fa-certificate me-2"></i>View Certificate
+                            {% elif item.progress == 0 %}
+                                <i class="fas fa-play me-2"></i>Start Course
+                            {% else %}
+                                <i class="fas fa-redo me-2"></i>Continue Learning
+                            {% endif %}
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        
+        <!-- Empty State -->
+        <div class="col-12 text-center py-5">
+            <div class="text-muted opacity-50 mb-3">
+                <i class="fas fa-folder-open fa-4x"></i>
+            </div>
+            <h3>No courses yet</h3>
+            <p class="text-muted">Explore our catalog and start learning today!</p>
+            <a href="{% url 'course_list' %}" class="btn btn-primary px-4 rounded-pill">Browse Courses</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.hover-card {
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    border-color: #e9ecef;
+}
+</style>
+{% endblock %}

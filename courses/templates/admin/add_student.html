@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Add New Student{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="fw-bold mb-0">Add New Student</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="fw-bold mb-1">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. ahmed_ali" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="fw-bold mb-1">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="student@example.com" required>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label class="fw-bold mb-1">Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required>
+                            <div class="form-text">Choose a strong password for the student.</div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Student Account</button>
+                            <a href="{% url 'admin_students' %}" class="btn btn-light text-muted">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Create Course{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card border-0 shadow-sm col-md-8 mx-auto">
+        <div class="card-header bg-white py-3">
+            <h4 class="fw-bold mb-0">Create New Course</h4>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Course Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="Enter course title" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Course description" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="Development">Development</option>
+                            <option value="Business">Business</option>
+                            <option value="Design">Design</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                    
+                    <!-- ✅✅ هنا حل مشكلة اختفاء المدربين -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Instructor</label>
+                        <select name="instructor" class="form-select" required>
+                            <option value="" selected disabled>Select Instructor...</option>
+                            {% for instructor in instructors %}
+                                <!-- التصحيح: instructor.user.username -->
+                                <option value="{{ instructor.id }}">{{ instructor.user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Price ($)</label>
+                        <input type="number" name="price" class="form-control" value="0">
+                    </div>
+                    <div class="col-md-6 mb-3 pt-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_paid" id="is_paid">
+                            <label class="form-check-label" for="is_paid">Paid Course</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Thumbnail</label>
+                    <input type="file" name="thumbnail" class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Create Course</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

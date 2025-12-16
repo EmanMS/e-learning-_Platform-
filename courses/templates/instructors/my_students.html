@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Students - Instructor Panel{% endblock %}
+
+{% block content %}
+<style>
+    /* نفس الستايل السابق مع إزالة كود البحث */
+    .dashboard-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        background: #fff;
+    }
+
+    .avatar-initials {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1.2rem 1rem;
+    }
+    
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 1rem;
+        border-bottom: 2px solid #edf2f7;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .course-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+        background-color: #f8f9fa;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        display: inline-block;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    /* ستايل شريط التقدم الجديد */
+    .progress-track {
+        height: 6px;
+        background-color: #edf2f7;
+        border-radius: 10px;
+        width: 100px;
+        margin-bottom: 5px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 10px;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Header (Simple & Clean) -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-users text-primary me-2"></i>Classroom
+            </h2>
+            <p class="text-muted mb-0">Track your students' learning progress</p>
+        </div>
+        
+        <!-- Total Counter -->
+        <div class="bg-white px-4 py-2 rounded-pill shadow-sm border">
+            <span class="fw-bold text-dark">{{ total_count }}</span>
+            <span class="text-muted small ms-1">Active Students</span>
+        </div>
+    </div>
+
+    <!-- Students Card -->
+    <div class="dashboard-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Student Name</th>
+                        <th>Enrolled Courses</th>
+                        <th>Learning Progress</th>
+                        <th>Joined Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <!-- Avatar & Name -->
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-initials me-3">
+                                    {{ student.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ student.user.username }}</h6>
+                                    <small class="text-muted">{{ student.user.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Courses List (Clean Badges) -->
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for course in student.enrolled_courses.all %}
+                                    {% if course.instructor == user.instructor %}
+                                        <span class="course-badge">
+                                            {{ course.title|truncatechars:20 }}
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <!-- Progress Bar (The new cool feature) -->
+                        <td>
+                            <!-- هنا بنعمل شكل تخيلي للتقدم، وممكن نبرمجه بدقة لاحقاً -->
+                            <div class="d-flex flex-column">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="fw-bold text-dark small me-2">Active</span>
+                                    <i class="fas fa-bolt text-warning" style="font-size: 0.7rem;"></i>
+                                </div>
+                                <div class="progress-track">
+                                    <!-- بنخلي العرض عشوائي شكلاً لحد ما نربطه بالداتا الحقيقية -->
+                                    <div class="progress-fill" style="width: 45%;"></div>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.7rem;">3/12 Lessons</small>
+                            </div>
+                        </td>
+
+                        <!-- Join Date -->
+                        <td class="text-muted small">
+                            <i class="far fa-calendar me-1"></i>
+                            {{ student.user.date_joined|date:"M d, Y" }}
+                        </td>
+
+                        <!-- Actions (View Details) -->
+                        <td class="text-end pe-4">
+                            <button type="button" class="action-btn bg-light text-primary border-0" 
+                                    data-bs-toggle="tooltip" title="View Progress Details">
+                                <i class="fas fa-chart-pie"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-user-graduate fa-3x mb-3 opacity-25"></i>
+                                <h5 class="fw-bold">No Students Yet</h5>
+                                <p class="mb-0">Your classroom is empty. Keep creating great content!</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

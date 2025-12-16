@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Student Profile</h2>
+            <p class="text-muted">Manage courses and details for {{ student.user.username }}</p>
+        </div>
+        <a href="{% url 'admin_students' %}" class="btn btn-light border">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- 1. Student Info Card -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body text-center p-4">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ student.user.username|make_list|first|upper }}
+                    </div>
+                    <h4 class="fw-bold">{{ student.user.username }}</h4>
+                    <p class="text-muted">{{ student.user.email }}</p>
+                    <hr>
+                    <div class="text-start">
+                        <p class="mb-2"><strong>User ID:</strong> {{ student.user.id }}</p>
+                        <p class="mb-2"><strong>Joined:</strong> {{ student.user.date_joined|date:"d M, Y" }}</p>
+                        <p class="mb-0"><strong>Last Login:</strong> {{ student.user.last_login|timesince }} ago</p>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'admin_edit_student' student.id %}" class="btn btn-warning">
+                            <i class="fas fa-pen me-2"></i>Edit Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Enrolled Courses Management -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Enrolled Courses ({{ enrolled_courses.count }})</h5>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Form to Enroll in New Course -->
+                    <form method="POST" class="mb-4 p-3 bg-light rounded-3 border border-light">
+                        {% csrf_token %}
+                        <label class="fw-bold small text-uppercase text-muted mb-2">Enroll in a new course</label>
+                        <div class="input-group">
+                            <select name="course_to_add" class="form-select" required>
+                                <option value="" selected disabled>Select a course to add...</option>
+                                {% for course in available_courses %}
+                                    <option value="{{ course.id }}">{{ course.title }} (${{ course.price }})</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Enroll
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- List of Enrolled Courses -->
+                    {% if enrolled_courses %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Category</th>
+                                    <th>Progress</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in enrolled_courses %}
+                                <tr>
+                                    <td class="fw-bold">
+                                        <a href="{% url 'course_detail' course.id %}" class="text-decoration-none text-dark">
+                                            {{ course.title }}
+                                        </a>
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ course.category }}</span></td>
+                                    <td>
+                                        <!-- حسبة بسيطة للتقدم (ممكن تطوريها) -->
+                                        {% with progress=student.get_course_progress %}
+                                        <!-- لاحظي: لو دالة get_course_progress مش بتاخد parameter في المودل هتشتغل، لو بتاخد course لازم custom template tag -->
+                                        <span class="text-muted small">Enrolled</span>
+                                        {% endwith %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'admin_unenroll_student_course' student.id course.id %}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Remove student from this course?');">
+                                            <i class="fas fa-times me-1"></i> Remove
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-book-open fa-2x mb-3 opacity-25"></i>
+                            <p>This student is not enrolled in any courses yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Instructors - Admin Panel{% endblock %}
+
+{% block content %}
+<style>
+    /* نفس ستايل الداشبورد لتوحيد الشكل */
+    .dashboard-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Instructors</h2>
+            <p class="text-muted mb-0">Manage and monitor all instructors</p>
+        </div>
+        <a href="{% url 'admin_add_instructor' %}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fas fa-user-plus me-2"></i>Add Instructor
+        </a>
+    </div>
+
+    <!-- Stats Cards (Soft UI) -->
+    <div class="row mb-5 g-4">
+        <div class="col-md-4">
+            <div class="dashboard-card bg-white p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Total Instructors</p>
+                        <h3 class="fw-bold mb-0 text-dark">{{ instructors.count }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                        <i class="fas fa-user-tie fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card bg-white p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Approved</p>
+                        <!-- ملاحظة: الرقم ده هيحتاج تحديث في الـ View عشان يظهر صح -->
+                        <h3 class="fw-bold mb-0 text-success">{{ instructors|length }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card bg-white p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Pending Review</p>
+                        <h3 class="fw-bold mb-0 text-warning">0</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
+                        <i class="fas fa-clock fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructors Table -->
+    <div class="dashboard-card bg-white p-0 overflow-hidden">
+        <div class="p-4 border-bottom bg-white">
+            <h5 class="fw-bold mb-0">
+                <i class="fas fa-list me-2 text-primary"></i>All Instructors List
+            </h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4">Instructor Details</th>
+                        <th>Specialization</th>
+                        <th class="text-center">Courses</th>
+                        <th class="text-center">Students</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for instructor in instructors %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <!-- صورة المدرب أو حرف من اسمه -->
+                                {% if instructor.profile_picture %}
+                                <img src="{{ instructor.profile_picture.url }}" class="avatar-circle me-3">
+                                {% else %}
+                                <div
+                                    class="avatar-circle me-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5">
+                                    {{ instructor.user.username|make_list|first|upper }}
+                                </div>
+                                {% endif %}
+
+                                <div>
+                                    <!-- ✅✅ الحل السحري: استخدام instructor.user.username -->
+                                    <h6 class="fw-bold mb-0 text-dark">{{ instructor.user.username }}</h6>
+                                    <small class="text-muted">{{ instructor.user.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                {{ instructor.specialization|default:"General" }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <strong class="text-dark">{{ instructor.course_set.count }}</strong>
+                        </td>
+
+                        <td class="text-center">
+                            <strong class="text-dark">{{ instructor.total_students }}</strong>
+                        </td>
+
+                        <td class="text-center">
+                            {% if instructor.is_approved %}
+                            <span class="badge bg-success bg-opacity-10 text-success status-badge">Approved</span>
+                            {% else %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning status-badge">Pending</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-2">
+                                <!-- زر المشاهدة (متاح للكل) -->
+                                <a href="{% url 'instructor_profile' instructor.id %}"
+                                    class="action-btn btn-light text-primary" data-bs-toggle="tooltip"
+                                    title="View Profile">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <!-- حماية الأدمن: إخفاء التعديل والحذف للسوبر يوزر -->
+                                {% if not instructor.user.is_superuser %}
+                                <a href="{% url 'admin_edit_instructor' instructor.id %}"
+                                    class="action-btn btn-light text-warning" data-bs-toggle="tooltip" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'admin_delete_instructor' instructor.id %}"
+                                    class="action-btn btn-light text-danger"
+                                    onclick="return confirm('Are you sure? This will delete all their courses!');"
+                                    data-bs-toggle="tooltip" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                                {% else %}
+                                <!-- لو أدمن، نظهر له بادج بدل الأزرار -->
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border ms-2">
+                                    <i class="fas fa-shield-alt me-1"></i>Protected
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-user-tie fa-3x mb-3 opacity-50"></i>
+                                <p>No instructors found.</p>
+                                <a href="{% url 'admin_add_instructor' %}" class="btn btn-sm btn-primary">Add First
+                                    Instructor</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

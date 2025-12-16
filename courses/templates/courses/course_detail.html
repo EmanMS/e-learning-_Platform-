@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - E-Learn{% endblock %}
+
+{% block content %}
+<style>
+    .course-header-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        background: white;
+        overflow: hidden;
+    }
+
+    .instructor-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+        text-decoration: none;
+        color: #495057;
+        transition: 0.2s;
+    }
+
+    .instructor-badge:hover {
+        background-color: #e9ecef;
+        color: #212529;
+    }
+/* Star Rating CSS */
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: start;
+}
+.rating input {
+    display: none;
+}
+.rating label {
+    cursor: pointer;
+    width: 30px;
+    font-size: 30px;
+    color: #ddd;
+    transition: color 0.2s;
+}
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+    color: #ffc107; /* اللون الذهبي */
+}
+    .lesson-item {
+        border-bottom: 1px solid #f1f3f5;
+        transition: 0.2s;
+    }
+
+    .lesson-item:last-child {
+        border-bottom: none;
+    }
+
+    .lesson-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .locked-lesson {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="container py-5">
+
+    <!-- 1. Course Header & Action Section -->
+    <div class="course-header-card mb-5">
+        <div class="row g-0">
+            <!-- Left: Thumbnail -->
+            <div class="col-lg-5 position-relative bg-light d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="img-fluid w-100 h-100 object-fit-cover" alt="{{ course.title }}">
+                {% else %}
+                <i class="fas fa-image fa-5x text-muted opacity-25"></i>
+                {% endif %}
+
+                <!-- Category Badge -->
+                <div class="position-absolute top-0 start-0 m-3">
+                    <span class="badge bg-white text-dark shadow-sm">{{ course.category }}</span>
+                </div>
+            </div>
+
+            <!-- Right: Info & Actions -->
+            <div class="col-lg-7 p-4 p-lg-5 d-flex flex-column justify-content-center">
+                <h1 class="fw-bold text-dark mb-3">{{ course.title }}</h1>
+                <p class="text-muted lead mb-4">{{ course.description|truncatewords:40 }}</p>
+
+                <div class="d-flex align-items-center mb-4 gap-3">
+                    <a href="#" class="instructor-badge">
+                        <i class="fas fa-user-tie text-primary me-2"></i>
+                        <span class="fw-bold">{{ course.instructor.user.username }}</span>
+                    </a>
+                    <span class="text-muted small"><i class="fas fa-users me-1"></i> {{ course.enrolled_students.count }} Enrolled</span>
+                    <span class="text-muted small"><i class="fas fa-layer-group me-1"></i> {{ total_lessons }} Lessons</span>
+                </div>
+
+                <div class="mt-auto">
+                    <!-- 🔥 CORRECTED BUSINESS LOGIC 🔥 -->
+                    {% if user.is_authenticated %}
+
+                        {# --- CASE 1: ADMIN --- #}
+                        {% if user.is_superuser or user.userprofile.role == 'admin' %}
+                            <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-dark d-block">Admin Control</strong>
+                                    <small class="text-muted">You have full access to this course.</small>
+                                </div>
+                                <a href="{% url 'admin_course_edit' course.id %}" class="btn btn-warning shadow-sm">
+                                    <i class="fas fa-cog me-1"></i> Manage Course
+                                </a>
+                            </div>
+
+                        {# --- CASE 2: INSTRUCTOR --- #}
+                        {% elif user.userprofile.role == 'instructor' %}
+                            {% if course.instructor.user == user %}
+                                {# OWNER #}
+                                <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong class="text-dark d-block">Instructor Actions</strong>
+                                        <small class="text-muted">Manage your content.</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'add_lesson' course.id %}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-plus"></i> Lesson
+                                        </a>
+                                        <a href="{% url 'edit_course' course.id %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-pen"></i> Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            {% else %}
+                                {# OTHER INSTRUCTOR #}
+                                <button class="btn btn-outline-secondary w-100 disabled">
+                                    <i class="fas fa-eye me-2"></i> View Only (Instructor Mode)
+                                </button>
+                            {% endif %}
+
+                        {# --- CASE 3: STUDENT --- #}
+                        {% else %}
+                            {% if is_enrolled %}
+                                {# ENROLLED STUDENT #}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="fw-bold text-primary">Your Progress</span>
+                                        <span class="fw-bold">{{ progress_percentage }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" 
+                                        role="progressbar" 
+                                        style="width: {{ progress_percentage }}%">
+                                    </div>
+                                    </div>
+                                </div>
+
+                                    <!-- ✅ كود الشهادة الجديد -->
+   <!-- لو الكورس خلص -->
+{% if progress_percentage == 100 %}
+    <div class="d-grid gap-2">
+        <button class="btn btn-success shadow-sm" disabled>
+            <i class="fas fa-check-circle me-2"></i> 🎉 Course Completed!
+        </button>
+        <a href="{% url 'download_certificate' course.id %}" class="btn btn-warning shadow-sm fw-bold">
+            <i class="fas fa-certificate me-2"></i> Download Certificate
+        </a>
+    </div>
+
+<!-- لو الكورس لسه مخلصش -->
+{% else %}
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="fas fa-check-circle me-2"></i> You are Enrolled
+    </div>
+    <!-- هنا ممكن تحطي زرار Continue Learning لو حابة -->
+{% endif %}
+                            {% else %}
+                                {# NEW STUDENT #}
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="h2 mb-0 fw-bold text-dark">
+                                        {% if course.is_paid %} ${{ course.price }} {% else %} Free {% endif %}
+                                    </span>
+                                    <span class="badge bg-warning text-dark">Full Lifetime Access</span>
+                                </div>
+                               <a href="{% url 'create_checkout_session' course.id %}" class="btn btn-primary btn-lg w-100 shadow-sm">
+                                         <i class="fas fa-credit-card me-2"></i> Buy Now for ${{ course.price }}
+
+                            {% endif %}
+                        {% endif %}
+
+                    {% else %}
+                        {# --- CASE 4: GUEST --- #}
+                        <div class="d-grid">
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login to Enroll
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Course Content (Lessons) -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h3 class="fw-bold mb-4">Course Content</h3>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom p-4">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold text-muted">{{ total_lessons }} Lessons</span>
+                    </div>
+                </div>
+
+                <div class="list-group list-group-flush">
+                    <!-- بداية اللوب لعرض الدروس -->
+                    {% for lesson in lessons %}
+                    <div class="list-group-item p-4 lesson-item {% if not is_enrolled and not user.is_staff and not user.instructor %}locked-lesson{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Lesson Info -->
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 40px; height: 40px;">
+                                    <span class="fw-bold">{{ lesson.order }}</span>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-bold text-dark">
+                                        {{ lesson.title }}
+                                        <!-- عرض القفل لو المستخدم مش مشترك ومش أدمن ومش صاحب الكورس -->
+                                        {% if not is_enrolled and not user.is_staff and course.instructor.user != user %}
+                                            <i class="fas fa-lock text-muted small ms-2"></i>
+                                        {% endif %}
+                                    </h5>
+                                    <p class="mb-0 text-muted small">{{ lesson.content|truncatechars:80 }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div>
+                                {# شرط المشاهدة: مشترك، أو أدمن، أو صاحب الكورس #}
+                                {% if is_enrolled or user.is_superuser or course.instructor.user == user %}
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if lesson.video_url %}
+                                        <a href="{{ lesson.video_url }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            <i class="fas fa-play me-1"></i> Watch
+                                        </a>
+                                        {% endif %}
+
+                                        {# زر Mark Complete للطلاب فقط #}
+                                        {% if is_enrolled %}
+                                            {% if lesson.id in completed_lessons %}
+                                            <span class="text-success small fw-bold">
+                                                <i class="fas fa-check-circle me-1"></i> Done
+                                            </span>
+                                            {% else %}
+                                            <form method="POST" action="{% url 'mark_lesson_complete' lesson.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-light btn-sm text-secondary rounded-pill border" title="Mark as Completed">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-secondary">Locked</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i>
+                        <p>No lessons added yet.</p>
+                    </div>
+                    {% endfor %}
+                    <!-- نهاية اللوب -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+             <!-- Reviews Section -->
+<div class="row mt-5">
+    <div class="col-lg-10 mx-auto">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h3 class="fw-bold mb-4">
+                <i class="fas fa-star text-warning me-2"></i>Student Reviews
+                <span class="text-muted fs-6">({{ avg_rating|floatformat:1 }}/5 based on {{ review_count }} reviews)</span>
+            </h3>
+
+            <!-- Review Form (Only for Enrolled Students) -->
+            {% if is_enrolled %}
+            <div class="bg-light p-4 rounded-3 mb-5 border">
+                <h5 class="fw-bold mb-3">Leave a Review</h5>
+                <form action="{% url 'add_review' course.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Star Rating Input -->
+                    <div class="mb-3">
+                        <label class="d-block fw-bold mb-1">Your Rating</label>
+                        <div class="rating">
+                            <input type="radio" name="rating" value="5" id="5"><label for="5">★</label>
+                            <input type="radio" name="rating" value="4" id="4"><label for="4">★</label>
+                            <input type="radio" name="rating" value="3" id="3"><label for="3">★</label>
+                            <input type="radio" name="rating" value="2" id="2"><label for="2">★</label>
+                            <input type="radio" name="rating" value="1" id="1"><label for="1">★</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold mb-1">Comment</label>
+                        {{ review_form.comment }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Submit Review</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Reviews List -->
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="d-flex mb-4 border-bottom pb-4">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-weight: bold;">
+                            {{ review.student.user.username|first|upper }}
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">{{ review.student.user.username }}</h6>
+                        <div class="text-warning mb-2">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted mb-1">{{ review.comment }}</p>
+                        <small class="text-muted" style="font-size: 0.75rem;">{{ review.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">No reviews yet. Be the first to review!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Learn - Online Learning Platform{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --light-bg: #f8f9fa;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            padding-top: 76px;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        section {
+            scroll-margin-top: 80px;
+        }
+
+        .course-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .rating-stars {
+            color: var(--warning-color);
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+        }
+
+        .badge-category {
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .instructor-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline-primary {
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+        }
+
+        .price-tag {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .students-count {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .instructor-badge {
+            background: linear-gradient(45deg, var(--warning-color), #ff6b6b);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+
+        .admin-badge {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: black;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+
+        .student-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+ <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom py-3">
+    <div class="container">
+        <!-- 1. Brand Logo -->
+        <a class="navbar-brand fw-bolder text-primary d-flex align-items-center" href="{% url 'home' %}">
+            <i class="fas fa-graduation-cap me-2 fs-4"></i> E-Learn
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto ms-lg-4 align-items-center">
+                
+                <!-- Explore Link (Available for all) -->
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold text-dark" href="{% url 'course_list' %}">
+                        Explore Courses
+                    </a>
+                </li>
+                
+                <!-- Features Link (يظهر للزوار فقط) -->
+                {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-muted" href="{% url 'home' %}#features">Features</a>
+                    </li>
+                {% endif %}
+
+                <!-- 🔥 (التصحيح الأول): الأزرار الذكية في الشريط العلوي 🔥 -->
+                <!-- لو أدمن -> يظهر Admin Panel بس -->
+                {% if user.is_superuser or user.userprofile.role == 'admin' %}
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link text-warning fw-bold border border-warning rounded-pill px-3 py-1" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-crown me-1"></i> Admin Panel
+                        </a>
+                    </li>
+                
+                <!-- لو مدرب (ومش أدمن) -> يظهر Instructor Studio -->
+                {% elif user.userprofile.role == 'instructor' %}
+                    <li class="nav-item ms-lg-2">
+                        <a class="nav-link text-primary fw-bold" href="{% url 'instructor_dashboard' %}">
+                            Instructor Studio
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <ul class="navbar-nav align-items-center gap-3">
+                {% if user.is_authenticated %}
+                    
+                    <!-- رابط كورسات الطالب (يظهر للطلاب فقط) -->
+                    {% if user.userprofile.role == 'student' %}
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link text-muted" href="{% url 'my_courses' %}">My Learning</a>
+                    </li>
+                    {% endif %}
+
+                    <!-- 4. Profile Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link p-0 d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                            <!-- Avatar Logic -->
+                            {% if user.userprofile.role == 'instructor' and user.instructor.profile_picture %}
+                                <img src="{{ user.instructor.profile_picture.url }}" class="rounded-circle shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% elif user.userprofile.role == 'student' and user.student.profile_picture %}
+                                <img src="{{ user.student.profile_picture.url }}" class="rounded-circle shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" 
+                                     style="width: 40px; height: 40px; font-size: 1rem;">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                        </a>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2" style="min-width: 230px;">
+                            <!-- Header Info -->
+                            <li class="px-3 py-2 border-bottom mb-2">
+                                <div class="fw-bold text-dark text-truncate">{{ user.first_name|default:user.username }}</div>
+                                <div class="text-muted small text-truncate">{{ user.email }}</div>
+                                <span class="badge bg-light text-primary mt-1">{{ user.userprofile.role|title }}</span>
+                            </li>
+
+                            <!-- 🔥 (التصحيح الثاني): رابط الداشبورد المباشر في المنيو 🔥 -->
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2" href="
+                                    {% if user.is_superuser or user.userprofile.role == 'admin' %}
+                                        {% url 'admin_dashboard' %}
+                                    {% elif user.userprofile.role == 'instructor' %}
+                                        {% url 'instructor_dashboard' %}
+                                    {% else %}
+                                        {% url 'student_dashboard' %}
+                                    {% endif %}
+                                ">
+                                    <i class="fas fa-th-large me-2 text-secondary"></i> Dashboard
+                                </a>
+                            </li>
+
+                            <!-- رابط خاص للمطورين (Admin Backend) -->
+                            {% if user.is_superuser %}
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="/admin/" target="_blank">
+                                        <i class="fas fa-database me-2 text-secondary"></i> Django Backend
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2" href="{% url 'profile_settings' %}">
+                                    <i class="fas fa-cog me-2 text-secondary"></i> Settings
+                                </a>
+                            </li>
+                            
+                            <li><hr class="dropdown-divider my-2"></li>
+                            
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Log Out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                {% else %}
+                    <!-- Guest Buttons -->
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-dark" href="{% url 'login' %}">Log in</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" href="{% url 'signup' %}">Sign up</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+            role="alert">
+            <i
+                class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-graduation-cap"></i> E-Learn
+                    </h4>
+                    <p class="mb-3">The leading online learning platform to develop your skills and achieve your
+                        learning goals.</p>
+                    <div class="social-links">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'home' %}" class="text-light text-decoration-none">Home</a>
+                        </li>
+                        <li class="mb-2"><a href="{% url 'course_list' %}"
+                                class="text-light text-decoration-none">Courses</a></li>
+                        <li class="mb-2"><a href="{% url 'home' %}#why-learn"
+                                class="text-light text-decoration-none">Features</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5 class="mb-3">Support</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">FAQ</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Contact Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 mb-4">
+                    <h5 class="mb-3">Newsletter</h5>
+                    <p class="mb-3">Subscribe to get latest courses and offers</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Your email">
+                        <button class="btn btn-primary" type="button">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 bg-light">
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 E-Learn. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Made with ❤️ for global learners</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

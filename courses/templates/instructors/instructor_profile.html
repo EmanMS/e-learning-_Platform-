@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ instructor.user_profile.user.username }} - Instructor Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar Profile -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body text-center p-4">
+                    <!-- Profile Picture -->
+                    <div class="mb-3">
+                        {% if instructor.profile_picture %}
+                        <img src="{{ instructor.profile_picture.url }}" 
+                             alt="{{ instructor.user_profile.user.username }}" 
+                             class="rounded-circle img-fluid" 
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user-tie fa-4x text-white"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Basic Info -->
+                    <h3 class="fw-bold mb-1">{{ instructor.user_profile.user.username }}</h3>
+                    <p class="text-muted mb-3">Instructor</p>
+                    
+                    <!-- Specialization -->
+                    <div class="mb-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6">
+                            {{ instructor.specialization|default:"General Instructor" }}
+                        </span>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <h5 class="fw-bold text-primary mb-1">{{ stats.total_courses }}</h5>
+                            <small class="text-muted">Courses</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="fw-bold text-success mb-1">{{ stats.total_students }}</h5>
+                            <small class="text-muted">Students</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="fw-bold text-info mb-1">{{ stats.total_lessons }}</h5>
+                            <small class="text-muted">Lessons</small>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span class="text-warning me-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </span>
+                            <strong>4.8</strong>
+                            <small class="text-muted ms-1">(1,240 reviews)</small>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    {% if user.userprofile.role == 'instructor' and user.userprofile.instructor.id == instructor.id %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'instructor_dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Instructor Dashboard
+                        </a>
+                        <a href="{% url 'create_course' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Course
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'course_list' %}" class="btn btn-primary">
+                            <i class="fas fa-book me-2"></i>Browse All Courses
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="fas fa-envelope me-2 text-primary"></i>Contact
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <i class="fas fa-envelope text-muted me-2"></i>
+                        <small>{{ instructor.user_profile.user.email }}</small>
+                    </div>
+                    {% if instructor.website %}
+                    <div class="mb-2">
+                        <i class="fas fa-globe text-muted me-2"></i>
+                        <small><a href="{{ instructor.website }}" target="_blank">Website</a></small>
+                    </div>
+                    {% endif %}
+                    {% if instructor.linkedin %}
+                    <div class="mb-2">
+                        <i class="fab fa-linkedin text-muted me-2"></i>
+                        <small><a href="{{ instructor.linkedin }}" target="_blank">LinkedIn</a></small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Bio Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="fw-bold mb-0">
+                        <i class="fas fa-user me-2 text-primary"></i>About Me
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if instructor.bio %}
+                    <p class="lead">{{ instructor.bio }}</p>
+                    {% else %}
+                    <p class="text-muted">No bio available yet.</p>
+                    {% endif %}
+                    
+                    {% if instructor.experience %}
+                    <div class="mt-3">
+                        <h6 class="fw-bold">Experience</h6>
+                        <p class="mb-0">{{ instructor.experience }} years of experience in {{ instructor.specialization }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="fw-bold mb-0">
+                            <i class="fas fa-book me-2 text-primary"></i>My Courses
+                        </h4>
+                        <span class="badge bg-primary">{{ instructor.course_set.count }} courses</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if instructor.course_set.all %}
+                    <div class="row">
+                        {% for course in instructor.course_set.all %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card border-0 h-100">
+                                {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" 
+                                     style="height: 160px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 160px;">
+                                    <i class="fas fa-book fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title fw-bold">{{ course.title }}</h6>
+                                    <p class="card-text small text-muted">{{ course.description|truncatewords:15 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge {% if course.is_paid %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                            {% if course.is_paid %}${{ course.price }}{% else %}FREE{% endif %}
+                                        </span>
+                                        <small class="text-muted">{{ course.enrolled_students.count }} students</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0">
+                                    <a href="{% url 'course_detail' course.id %}" class="btn btn-outline-primary btn-sm w-100">
+                                        View Course
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Courses Yet</h5>
+                        <p class="text-muted">This instructor hasn't created any courses yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h4 class="fw-bold mb-0">
+                        <i class="fas fa-star me-2 text-warning"></i>Student Reviews
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <h1 class="fw-bold text-warning mb-1">4.8</h1>
+                                <div class="text-warning mb-2">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <small class="text-muted">Based on 1,240 reviews</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="rating-bars">
+                                <div class="d-flex align-items-center mb-1">
+                                    <small class="text-muted me-2">5 stars</small>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 85%"></div>
+                                    </div>
+                                    <small class="text-muted">85%</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <small class="text-muted me-2">4 stars</small>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 12%"></div>
+                                    </div>
+                                    <small class="text-muted">12%</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <small class="text-muted me-2">3 stars</small>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 2%"></div>
+                                    </div>
+                                    <small class="text-muted">2%</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <small class="text-muted me-2">2 stars</small>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 1%"></div>
+                                    </div>
+                                    <small class="text-muted">1%</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted me-2">1 star</small>
+                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-muted">0%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 12px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.sticky-top {
+    position: sticky;
+    z-index: 100;
+}
+</style>
+{% endblock %}
