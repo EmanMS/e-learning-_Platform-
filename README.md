@@ -85,8 +85,7 @@
 ![Wishlist page]
 
 <div>
-<img width="1800" height="100" alt="Image" src="https://github.com/user-attachments/assets/1a74b835-084b-4efa-a32f-6e6dc52ff39c" />
-</div>
+<img width="1800" height="1000" alt="Image" src="https://github.com/user-attachments/assets/1a74b835-084b-4efa-a32f-6e6dc52ff39c" /></div>
 
 ## 🚀 How to Run Locally
 
